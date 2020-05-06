@@ -14,11 +14,14 @@ public class SimpleMaze : MonoBehaviour {
 
     void Start () {
         // TODO: start the Generate coroutine
+        StartCoroutine(Generate());
 	}
 
     public IEnumerator Generate()
     {
         // TODO: add a delay to pause after each cell generation
+        WaitForSeconds delay = new WaitForSeconds(CreationStepDelay);
+
         this.cells = new MazeCell[this.size.x, this.size.z];
         CellVector coordinates = this.RandomCoordinates;
         // TODO: implement the ContainsCoordinates check
@@ -26,6 +29,7 @@ public class SimpleMaze : MonoBehaviour {
         {
             this.CreateCell(coordinates);
             coordinates += MazeDirections.RandomValue.ToCellVector();
+            yield return delay;
         }
 
         yield return null;
@@ -58,6 +62,10 @@ public class SimpleMaze : MonoBehaviour {
     public bool ContainsCoordinates(CellVector coordinate)
     {
         // TODO: implement this check
-        return false;
+        if (coordinate.x == 0 && coordinate.z == 0)
+        {
+            return false;
+        }
+        return true;
     }
 }

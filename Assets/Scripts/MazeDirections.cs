@@ -52,6 +52,6 @@ public static class MazeDirections
     // TODO: implement these extension methods
     public static Quaternion ToRotation(this MazeDirection direction)
     {
-        return Quaternion.identity;
+        return rotations[(int)direction];
     }
 }
