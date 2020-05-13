@@ -47,7 +47,7 @@ MonoBehaviour:
     type: 3}
   PassagePrefab: {fileID: 4246091273438142392, guid: 8eea22c91adb64f1b89e75a346f1215c,
     type: 3}
-  WallPrefab: {fileID: 8882677440446951848, guid: 343adc831a5c644a9b0a7db15b1d01ad,
+  WallPrefab: {fileID: -8139092935821730917, guid: 993f93609feec42189b8e4c837cc90fd,
     type: 3}
   DoorPrefab: {fileID: -3929103512310549762, guid: 1b24c6115cffe4d598e71b0bf9d0bb08,
     type: 3}

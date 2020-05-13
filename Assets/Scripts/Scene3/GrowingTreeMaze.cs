@@ -23,6 +23,7 @@ public class GrowingTreeMaze : MonoBehaviour {
     // the actual implementation of the growing tree
     public IEnumerator Generate(PlayerController PlayerPrefab = null, Goal GoalPrefab = null)
     {
+        WaitForSeconds delay = new WaitForSeconds(CreationStepDelay);
         this.cells = new MazeCell[size.x, size.z];
         // 1st step: create a list cells
         List<MazeCell> activeCells = new List<MazeCell>();
@@ -30,12 +31,19 @@ public class GrowingTreeMaze : MonoBehaviour {
         this.DoFirstGenerationStep(activeCells);
         // 3rd - 5th step: add neighbors and remove cells until the list is empty
         // TODO: implement the main loop and pause for one frame in each step so you can see how the maze grows
-        
+        while (activeCells.Count > 0)
+        {
+            yield return delay;
+            this.DoNextGenerationStep(activeCells);
+        }
+
         if (PlayerPrefab && GoalPrefab)
         {
             // TODO: Fourth scene: If those prefabs are assigned, i.e. !null, than they should be initialized here.
             // First, the goal should be placed in the center of the maze. Second, the player, should be placed
             // randomly on the outskirts of the maze.
+            Instantiate(PlayerPrefab as PlayerController);
+            Instantiate(GoalPrefab as Goal);
         }
 
         yield return null;
@@ -44,34 +52,51 @@ public class GrowingTreeMaze : MonoBehaviour {
     private void DoFirstGenerationStep(List<MazeCell> activeCells)
     {
         // TODO: create a new cell at the center of the maze
+        CellVector middleCoordinates = new CellVector(0,0);
+        activeCells.Add(CreateCell(middleCoordinates));
     }
     
     private void DoNextGenerationStep(List<MazeCell> activeCells)
     {
         // TODO: implement the maze generation
         // 1st: get the index of the cell you want to work with, lets take the last one in the list
-        int currentIndex = -1;
+        int currentIndex = activeCells.Count-1;
         MazeCell currentCell = activeCells[currentIndex];
+
         // if the cell has already all walls and connections, we do not want to change it anymore
         if (currentCell.IsFullyInitialized)
         {
             // TODO: the cell should be removed from the list
+            activeCells.RemoveAt(currentIndex);
             return;
         }
         // TODO: we need to find the next edge (north, east, south, or west), we want to connect. Change this to a random direction,
         // there is a convenient method for this defined in MazeCell
-        MazeDirection direction = MazeDirection.NORTH;
+        MazeDirection direction = currentCell.RandomUninitializedDirection;
+        //MazeDirection direction = MazeDirection.NORTH;
+
         // TODO: determine the new coordinates, have a look into the MazeDirections class on how to obtain CellVector from a direction
-        CellVector coordinates = new CellVector(0, 0);
+        CellVector coordinates = currentCell.coordinates + direction.ToCellVector();
+
         // TODO: if the coordinates are valid, we might add a new cell, otherwise we create a wall (see functions below)
         if (ContainsCoordinates(coordinates))
         {
             // TODO: fetch the cell, if its null, create a cell, add a passage (see functions below), and add the cell to the list; create a wall otherwise
             MazeCell neighbor = this.GetCellAt(coordinates);
+            if (neighbor == null)
+            {
+                neighbor = CreateCell(coordinates);
+                CreatePassage(currentCell, neighbor, direction);
+                activeCells.Add(neighbor);
+            }
+            else{
+                CreateWall(currentCell, neighbor, direction);
+            }
         }
         else
         {
             // TODO: create a wall
+            CreateWall(currentCell, null, direction);
         }
     }
 
@@ -110,8 +135,7 @@ public class GrowingTreeMaze : MonoBehaviour {
 
     public bool ContainsCoordinates(CellVector coordinate)
     {
-        // TODO: implement this check
-        return false;
+        return coordinate.x >= 0 && coordinate.x < size.x && coordinate.z >= 0 && coordinate.z < size.z;
     }
 
     private MazeCell GetCellAt(CellVector coordinates)
